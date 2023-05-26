@@ -109,6 +109,7 @@ async function run() {
         // pathToPublish is a folder or a single file that may be added to a tar archive later
         const pathToPublish: string = tl.getPathInput('PathtoPublish', true, true);
         var artifactName: string = tl.getInput('ArtifactName', true);
+        const var fileCopyOptions: string = tl.getInput('FileCopyOptions', false);
         
         // if FF EnableBuildArtifactsPlusSignWorkaround is enabled or AZP_TASK_FF_ENABLE_BUILDARTIFACTS_PLUS_SIGN_WORKAROUND environment variable is set:
         // replacing '+' symbol by its representation ' '(space) - workaround for the DownloadBuildArtifactV0 task,
@@ -166,11 +167,11 @@ async function run() {
 
                 // copy the files
                 let script: string = path.join(__dirname, 'Invoke-Robocopy.ps1');
-                let command: string = `& ${pathToScriptPSString(script)} -Source ${pathToRobocopyPSString(pathToUpload)} -Target ${pathToRobocopyPSString(artifactPath)} -ParallelCount ${parallelCount}`
+                let command: string = `& ${pathToScriptPSString(script)} -Source ${pathToRobocopyPSString(pathToUpload)} -Target ${pathToRobocopyPSString(artifactPath)} -ParallelCount ${parallelCount} -FileCopyOptions: ${fileCopyOptions}`
                 if (tl.stats(pathToUpload).isFile()) {
                     let parentFolder = path.dirname(pathToUpload);
                     let file = path.basename(pathToUpload);
-                    command = `& ${pathToScriptPSString(script)} -Source ${pathToRobocopyPSString(parentFolder)} -Target ${pathToRobocopyPSString(artifactPath)} -ParallelCount ${parallelCount} -File '${file}'`
+                    command = `& ${pathToScriptPSString(script)} -Source ${pathToRobocopyPSString(parentFolder)} -Target ${pathToRobocopyPSString(artifactPath)} -ParallelCount ${parallelCount} -File '${file}' -FileCopyOptions: ${fileCopyOptions}`
                 }
 
                 let powershell = new tr.ToolRunner('powershell.exe');
